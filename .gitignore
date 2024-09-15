@@ -1,0 +1,17 @@
+.idea/
+
+cmake-build-debug/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+*.o
+*.a
+*.so
+*.exe
+
+*.log
+*.tmp
+
+CMakeLists.txt
