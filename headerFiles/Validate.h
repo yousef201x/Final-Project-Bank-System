@@ -2,8 +2,8 @@
 // Created by yousef on 9/12/2024.
 //
 
-#ifndef FINAL_PROJECT_UTILITY_H
-#define FINAL_PROJECT_UTILITY_H
+#ifndef FINAL_PROJECT_VALIDATE_H
+#define FINAL_PROJECT_VALIDATE_H
 
 
 #pragma once
@@ -12,7 +12,7 @@
 #include <string>
 using namespace std;
 
-class Utility
+class Validate
 {
 public:
     static int usersCount;
@@ -28,7 +28,7 @@ public:
         // Check if all characters are alphabetic
         for (int i = 0; i < value.length(); i++)
         {
-            if (!isalpha(value[i]))
+            if (!isalpha(value[i]) || isspace(value[i]))
             {
                 return false;
             }
@@ -51,4 +51,4 @@ public:
 };
 
 
-#endif //FINAL_PROJECT_UTILITY_H
+#endif //FINAL_PROJECT_VALIDATE_H

@@ -6,20 +6,17 @@
 
 #include <iostream>
 #include <string>
-#include "Utility.h"
+#include "Validate.h"
 #include "exception"
 using namespace std;
 
-class Person
-{
+class Person {
 private:
-    string generateID(char type)
-    {
+    string generateID(char type) {
         string id{};
-        string strUserCount = to_string(Utility::usersCount);
-        switch(type)
-        {
-            case 'c' :
+        string strUserCount = to_string(Validate::usersCount);
+        switch(type) {
+            case 'c':
                 id = "C-" + strUserCount;
                 break;
             case 'e':
@@ -29,83 +26,89 @@ private:
                 id = "A-" + strUserCount;
                 break;
         }
-
         return id;
     }
+
 protected:
-    string name, password , id;
+    string name, password, id;
+
 public:
-    class invalidNameException : public exception{
+    class invalidNameException : public exception {
     public:
-        const char * what() const noexcept override {
-            return "Error: Name cannot contain any numbers or symbols and must be between 5 and 20 chars";
+        const char* what() const noexcept override {
+            return "Error: Name cannot contain any numbers, spaces, or symbols and must be between 5 and 20 chars.";
         }
     };
 
-    class invalidPasswordException : public exception{
+    class invalidPasswordException : public exception {
     public:
-        const char * what() const noexcept override {
-            return "Error: Password must be between 8 and 20 chars";
+        const char* what() const noexcept override {
+            return "Error: Password must be between 8 and 20 characters.";
         }
     };
 
-    Person(string name, string password , char type )
-    {
-        Utility::usersCount += 1;
+    Person(string name, string password, char type) {
+        Validate::usersCount += 1;
         this->id = generateID(type);
 
-        if(Utility::isValidName(name)){
-            this->name = name ;
-        }
-        else{
-            throw invalidNameException();
-        }
+        try {
+            if (Validate::isValidName(name)) {
+                this->name = name;
+            } else {
+                throw invalidNameException();
+            }
 
-        if(Utility::isStrInRange(password,8,20)){
-            this->password = password ;
-        }
-        else{
-            throw invalidPasswordException();
+            if (Validate::isStrInRange(password, 8, 20)) {
+                this->password = password;
+            } else {
+                throw invalidPasswordException();
+            }
+        } catch (const invalidNameException& e) {
+            cerr << e.what() << endl;
+        } catch (const invalidPasswordException& e) {
+            cerr << e.what() << endl;
         }
     }
 
-    const string &getName() const {
+    const string& getName() const {
         return name;
     }
 
-    const string &getPassword() const {
+    const string& getPassword() const {
         return password;
     }
 
-    const string &getId() const {
+    const string& getId() const {
         return id;
     }
 
-    void setName(const string &name) {
-        if(Utility::isValidName(name)){
-            this->name = name ;
-        }
-        else{
-            throw invalidNameException();
-        }
-
-    }
-
-    void setPassword(const string &password) {
-        if(Utility::isStrInRange(password,8,20)){
-            this->password = password ;
-        }
-        else{
-            throw invalidPasswordException();
+    void setName(const string& name) {
+        try {
+            if (Validate::isValidName(name)) {
+                this->name = name;
+            } else {
+                throw invalidNameException();
+            }
+        } catch (const invalidNameException& e) {
+            cerr << e.what() << endl;
         }
     }
 
-    virtual void displayInfo(){
-        cout
-        << this->id << endl
-        << this->name << endl;
+    void setPassword(const string& password) {
+        try {
+            if (Validate::isStrInRange(password, 8, 20)) {
+                this->password = password;
+            } else {
+                throw invalidPasswordException();
+            }
+        } catch (const invalidPasswordException& e) {
+            cerr << e.what() << endl;
+        }
+    }
+
+    virtual void displayInfo() {
+        cout << this->id << endl
+             << this->name << endl;
     }
 };
-
-
 
