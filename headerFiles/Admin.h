@@ -10,7 +10,7 @@
 class Admin : public Employee{
 public:
     Admin(string name, string password, double salary)
-    : Employee(name,password,salary,'a')
+    : Employee(name,password,salary)
     {}
 };
 

@@ -1,18 +1,24 @@
 #include <iostream>
-#include "headerFiles/Validate.h"
-#include "headerFiles/Person.h"
-#include "headerFiles/Client.h"
-#include "headerFiles/Employee.h"
-#include "headerFiles/Admin.h"
+
 using namespace std;
 
-int Validate::usersCount = 0 ;
+int main() {
+    int n;
+    cin >> n;
 
+    double mana{}, minMana{};
+    int change;
 
-int main(){
-    int test ;
-    Client c1("Yousef","12345678",1500);
-    Client c2("Yousef","12345678",1500);
-    Employee e ("Yousef","12345678",5000);
-    Admin a ("Yousef","12345678",-5000);
+    for (int i = 0; i < n; i++) {
+        cin >> change;
+
+        mana += change;
+
+        if (mana < 0) {
+            minMana += -mana;
+            mana = 0;
+        }
+    }
+
+    cout << minMana;
 }
