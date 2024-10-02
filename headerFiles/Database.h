@@ -6,7 +6,7 @@
 #define FINAL_PROJECT_DATABASE_H
 
 #pragma once
-#include "sqlite3.h"
+#include "../sqlite/sqlite3.h"
 #include <string>
 #include <iostream>
 using namespace std;

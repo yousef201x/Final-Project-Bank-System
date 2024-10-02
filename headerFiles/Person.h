@@ -31,8 +31,6 @@ public:
 
     Person(string name, string password)
     {
-        this->id = Validate::usersCount += 1;
-
         if(Validate::isValidName(name)){
             this->name = name ;
         }

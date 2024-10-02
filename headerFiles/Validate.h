@@ -15,8 +15,6 @@ using namespace std;
 class Validate
 {
 public:
-    static int usersCount;
-
     static bool isValidName(const string& value, int min = 5, int max = 20)
     {
         // Check length of the string
