@@ -1,70 +1,52 @@
 #include <iostream>
-#include "headerFiles/Validate.h"
-#include "headerFiles/Person.h"
 #include "headerFiles/Client.h"
 #include "headerFiles/Employee.h"
 #include "headerFiles/Admin.h"
 #include "headerFiles/DataBaseManager.h"
-
+#include "startDB.h"
 using namespace std;
 
-
 int main(){
-    string dbName = "DB.db"; // Database File Name
-    DataBaseManager cursor(dbName);
+    DataBaseManager cursor  = startDB();
 
-    // Open connection with database
-    cursor.open();
-
-    // Build All Tables
-    cursor.buildTables();
-
-
-    Client c("yousef","12345677",1500);
-    cursor.insertTo("clients",c);
-
-    Employee e("yousef","12345677",5000);
-    cursor.insertTo("employees",e);
-
-    Admin a("yousef","12345677",5000);
-    cursor.insertTo("admins",a);
-
-
-
-    // Fetch all clients data
-    cursor.all("clients");
-
-    // Fetch all employees data
-    cursor.all("employees");
+//    Client c("yousef","12345677",1500);
+//    cursor.insertTo("clients",c);
+//
+//    Employee e("yousef","12345677",5000);
+//    cursor.insertTo("employees",e);
+//
+//    Admin a("yousef","12345677",5000);
+//    cursor.insertTo("admins",a);
+//
+//    // Fetch all clients data
+//    cursor.all("clients");
+//
+//    // Search By id
+//    cursor.findById("clients",150);
+//
+//    // Fetch all employees data
+//    cursor.all("employees");
 
     // Fetch all admins data
-    cursor.all("admins");
+//    cursor.all("admins");
+//
+//    // Remove all clients data
+//    cursor.clear("clients");
+//
+//    // Remove all employees data
+//    cursor.clear("employees");
+//
+//    // Remove all admins data
+//    cursor.clear("admins");
 
-    // Remove all clients data
-    cursor.removeAll("clients");
+//    cout << cursor.isFound("clients",150);
+//    cursor.update("clients",1500,"1","yousef",10000000);
+//
+//    cout << endl;
+//
+//    cursor.update("clients",150,"Joeseeff","joeeee201x");
 
-    // Remove all employees data
-    cursor.removeAll("employees");
-
-    // Remove all admins data
-    cursor.removeAll("admins");
-
-    // Add new client from Employee class
-    e.addClient(c,cursor.getDb(),dbName);
-    // or
-    e.addClient(c,cursor.getDb());
-
-    // List all clients from Employee class
-    e.listClients(cursor.getDb());
-    // or
-    e.listClients(cursor.getDb());
-
-    // Search client by name
-    e.findClient("y",cursor.getDb());
-
-    // Search Client by name
-    e.findClient(123,cursor.getDb());
-
+cursor.findById("clients",150);
 
     // Close Database Connection
     cursor.close();

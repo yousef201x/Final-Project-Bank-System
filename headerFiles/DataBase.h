@@ -18,6 +18,9 @@ private:
     string dbName;
 
 public:
+    static sqlite3* DB ;
+    static string databaseName;
+
     // Constructor: takes the name of the database file
     DataBase(const string& name) : db(nullptr), dbName(name) {}
 
@@ -29,16 +32,6 @@ public:
     // Function to open the database
     bool open() {
         int connection = sqlite3_open(dbName.c_str(), &db);
-        if (connection != SQLITE_OK) {
-            cout << "Failed to connect to the database: " << sqlite3_errmsg(db) << endl;
-            return false;
-        }
-        return true;
-    }
-
-    static bool openConnection(string fileName , sqlite3* db){
-
-        int connection = sqlite3_open(fileName.c_str(), &db);
         if (connection != SQLITE_OK) {
             cout << "Failed to connect to the database: " << sqlite3_errmsg(db) << endl;
             return false;
@@ -58,27 +51,8 @@ public:
         }
     }
 
-    static void closeConnection(sqlite3* db){
-        if (db) {
-            sqlite3_close(db);
-            db = nullptr;
-        }
-    }
-
     // Function to execute an SQL query
     bool execute(const string& query) {
-        char* error = nullptr;
-        int connection = sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
-
-        if (connection != SQLITE_OK) {
-            cout << "SQL error: " << error << endl;
-            sqlite3_free(error);
-            return false;
-        }
-        return true;
-    }
-
-    static bool executeSQL(sqlite3* db,const string& query) {
         char* error = nullptr;
         int connection = sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
 

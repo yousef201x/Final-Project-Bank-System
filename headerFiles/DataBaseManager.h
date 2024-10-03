@@ -71,7 +71,6 @@ public:
         }
     }
 
-
     void all(const string& table) {
         sqlite3_stmt *stmt;
         const string sql = "SELECT * FROM " + table;
@@ -90,7 +89,106 @@ public:
         }
     }
 
-    void removeAll(const string& table){
+    void findById(const string& table ,const int& id) {
+        sqlite3_stmt *stmt;
+        const string sql = "SELECT * FROM "+table+" WHERE id = "+ to_string(id)+";";
+
+        int rc = sqlite3_prepare_v2(getDb(), sql.c_str(), -1, &stmt, nullptr);
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            do {
+                cout << "ID: " << sqlite3_column_text(stmt, 0) << std::endl;
+                cout << "NAME: " << sqlite3_column_text(stmt, 1) << std::endl;
+                cout << "BALANCE :" << sqlite3_column_text(stmt, 3) << "$" << endl << endl;
+            } while (sqlite3_step(stmt) == SQLITE_ROW);
+        } else {
+            cout << "No Data found." << std::endl;
+            return;
+        }
+    }
+
+    bool isFound(const string& table ,const int& id){
+        sqlite3_stmt *stmt;
+        const string sql = "SELECT * FROM "+table+" WHERE id = "+ to_string(id)+";";
+
+        int rc = sqlite3_prepare_v2(getDb(), sql.c_str(), -1, &stmt, nullptr);
+
+        return sqlite3_step(stmt) == SQLITE_ROW;
+    }
+
+    void update(const string& table ,const int& id , string name , string password , double val = -9999){
+
+        if(!isFound(table,id)){
+            cout << "Record not found";
+            return;
+        }
+
+        if(!empty(name)) {
+            string sql = "UPDATE " + table + " SET name = '" + name + "';";
+            if (execute(sql)) {
+                cout << "Name updated successfully.";
+            } else {
+                cout << "An Error occurred while updating name.";
+            }
+
+            if (!empty(password)) {
+                string sql = "UPDATE " + table + " SET password = '" + password + "';";
+                if (execute(sql)) {
+                    cout << "Password updated successfully.";
+                } else {
+                    cout << "An Error occurred while updating password.";
+                }
+            }
+
+            if(val != -9999){
+                if(table == "clients"){
+                    sql = "UPDATE " + table + " SET balance = " + to_string(val) + ";";
+                }else{
+                    sql = "UPDATE " + table + " SET salary = " + to_string(val) + ";";
+                }
+
+                cout << sql;
+
+                if (execute(sql)) {
+                    cout << (table == "clients" ? "Balance updated successfully." : "Salary updated successfully.") << endl;
+                } else {
+                    cout << (table == "clients" ? "An Error occurred while updating Balance." : "An Error occurred while updating Salary.") << endl;
+                }
+            }
+        }
+    }
+
+    void updateColumn(const string& table ,string column , const int& id , string value){
+
+        if(!isFound(table,id)){
+            cout << "Record not found";
+            return;
+        }
+
+        string sql = "UPDATE " + table + " SET "+column+"= '" + value + "';";
+        if (execute(sql)) {
+            cout << column+" updated successfully.";
+        } else {
+            cout << "An Error occurred while updating"+column+".";
+        }
+    }
+
+    void updateColumn(const string& table ,string column , const int& id , double value){
+
+        if(!isFound(table,id)){
+            cout << "Record not found";
+            return;
+        }
+
+        string sql = "UPDATE " + table + " SET "+column+"= '" + to_string(value) + "';";
+        if (execute(sql)) {
+            cout << column+" updated successfully.";
+        } else {
+            cout << "An Error occurred while updating"+column+".";
+        }
+    }
+
+    void clear(const string& table){
         const string sql = "DELETE FROM "+table;
 
         if(execute(sql)){
