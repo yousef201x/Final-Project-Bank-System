@@ -14,8 +14,8 @@ using namespace std;
 class DataBase
 {
 private:
-    sqlite3* db;          // SQLite database connection
-    string dbName;        // Database file name
+    sqlite3* db;
+    string dbName;
 
 public:
     // Constructor: takes the name of the database file
@@ -33,8 +33,21 @@ public:
             cout << "Failed to connect to the database: " << sqlite3_errmsg(db) << endl;
             return false;
         }
-        cout << "Database opened successfully." << endl;
         return true;
+    }
+
+    static bool openConnection(string fileName , sqlite3* db){
+
+        int connection = sqlite3_open(fileName.c_str(), &db);
+        if (connection != SQLITE_OK) {
+            cout << "Failed to connect to the database: " << sqlite3_errmsg(db) << endl;
+            return false;
+        }
+        return true;
+    }
+
+    sqlite3 *getDb() const {
+        return db;
     }
 
     // Function to close the database
@@ -42,12 +55,30 @@ public:
         if (db) {
             sqlite3_close(db);
             db = nullptr;
-            cout << "Database closed successfully." << endl;
+        }
+    }
+
+    static void closeConnection(sqlite3* db){
+        if (db) {
+            sqlite3_close(db);
+            db = nullptr;
         }
     }
 
     // Function to execute an SQL query
     bool execute(const string& query) {
+        char* error = nullptr;
+        int connection = sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
+
+        if (connection != SQLITE_OK) {
+            cout << "SQL error: " << error << endl;
+            sqlite3_free(error);
+            return false;
+        }
+        return true;
+    }
+
+    static bool executeSQL(sqlite3* db,const string& query) {
         char* error = nullptr;
         int connection = sqlite3_exec(db, query.c_str(), nullptr, nullptr, &error);
 
@@ -68,7 +99,6 @@ public:
                            "balance FLOAT(10,3) NOT NULL);";
 
         if (execute(sql)) {
-            cout << "Clients table created successfully." << endl;
             return true;
         }
         return false;
@@ -83,7 +113,6 @@ public:
                            "salary FLOAT(10,3) NOT NULL);";
 
         if (execute(sql)) {
-            cout << "Employees table created successfully." << endl;
             return true;
         }
         return false;
@@ -98,7 +127,6 @@ public:
                            "salary FLOAT(10,3) NOT NULL);";
 
         if (execute(sql)) {
-            cout << "Admins table created successfully." << endl;
             return true;
         }
         return false;
