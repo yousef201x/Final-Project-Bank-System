@@ -4,6 +4,7 @@
 #include "headerFiles/Admin.h"
 #include "headerFiles/DataBaseManager.h"
 #include "startDB.h"
+#include "headerFiles/Schema.h"
 using namespace std;
 
 int main(){
@@ -48,6 +49,13 @@ int main(){
     cursor.destroy("clients",150);
 
     cursor.findById("clients",151);
+
+
+    Schema::insertTo("clients",c);
+    Schema::updateColumn("clients","name",186,"aaaaaaaaa");
+    Schema::destroy("clients",190);
+    Schema::findById("clients",186);
+    Schema::all("clients");
 
     // Close Database Connection
     cursor.close();

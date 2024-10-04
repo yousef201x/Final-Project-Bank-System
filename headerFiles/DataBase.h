@@ -14,9 +14,6 @@ private:
     string dbName;
 
 public:
-    static sqlite3* DB ;
-    static string databaseName;
-
     DataBase(const string& name) : db(nullptr), dbName(name) {}
 
     ~DataBase() {

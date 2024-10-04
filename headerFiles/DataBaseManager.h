@@ -7,7 +7,7 @@
 #include "Admin.h"
 #include "Employee.h"
 #include "../sqlite/sqlite3.h"
-#include "headerFiles/Validate.h"
+#include "Validate.h"
 
 using namespace std;
 
@@ -43,7 +43,7 @@ public:
         }
     }
 
-    void insertTo(const string table,Employee& employee) {
+    void insertTo(const string& table,Employee& employee) {
         string name = employee.getName();
         string password = employee.getPassword();
         double salary = employee.getSalary();
@@ -67,7 +67,7 @@ public:
         }
     }
 
-    void insertTo(const string table,Admin& admin) {
+    void insertTo(const string& table,Admin& admin) {
         string name = admin.getName();
         string password = admin.getPassword();
         double salary = admin.getSalary();
@@ -138,7 +138,7 @@ public:
         return sqlite3_step(stmt) == SQLITE_ROW;
     }
 
-    void update(const string& table ,const int& id , string name , string password , double val = -9999){
+    void update(const string& table ,const int& id , const string& name , const string& password , double val = -9999){
 
         if(!isFound(table,id)){
             cout << "Record not found" << endl;
@@ -154,42 +154,43 @@ public:
             return;
         }
 
+        string sql;
+
         if(!empty(name)) {
-            string sql = "UPDATE " + table + " SET name = '" + name + "';";
+            sql = "UPDATE " + table + " SET name = '" + name + "';";
             if (execute(sql)) {
                 cout << "Name updated successfully." << endl;
             } else {
                 cout << "An Error occurred while updating name." << endl;
             }
+        }
 
-            if (!empty(password)) {
-                string sql = "UPDATE " + table + " SET password = '" + password + "';";
-                if (execute(sql)) {
-                    cout << "Password updated successfully." << endl;
-                } else {
-                    cout << "An Error occurred while updating password." << endl;
-                }
+        if (!empty(password)) {
+            sql = "UPDATE " + table + " SET password = '" + password + "';";
+            if (execute(sql)) {
+                cout << "Password updated successfully." << endl;
+            } else {
+                cout << "An Error occurred while updating password." << endl;
+            }
+        }
+
+        if(val != -9999){
+            if(table == "clients"){
+                sql = "UPDATE " + table + " SET balance = " + to_string(val) + ";";
+            }else{
+                sql = "UPDATE " + table + " SET salary = " + to_string(val) + ";";
             }
 
-            if(val != -9999){
-                if(table == "clients"){
-                    sql = "UPDATE " + table + " SET balance = " + to_string(val) + ";";
-                }else{
-                    sql = "UPDATE " + table + " SET salary = " + to_string(val) + ";";
-                }
 
-                cout << sql;
-
-                if (execute(sql)) {
-                    cout << (table == "clients" ? "Balance updated successfully." : "Salary updated successfully.") << endl;
-                } else {
+            if (execute(sql)) {
+                cout << (table == "clients" ? "Balance updated successfully." : "Salary updated successfully.") << endl;
+            } else {
                     cout << (table == "clients" ? "An Error occurred while updating Balance." : "An Error occurred while updating Salary.") << endl;
-                }
             }
         }
     }
 
-    void updateColumn(const string& table ,string column , const int& id , string value){
+    void updateColumn(const string& table ,const string& column , const int& id , const string& value){
 
         if(!isFound(table,id)){
             cout << "Record not found" << endl;
@@ -216,7 +217,7 @@ public:
         }
     }
 
-    void updateColumn(const string& table ,string column , const int& id , double value){
+    void updateColumn(const string& table ,const string& column , const int& id , double value){
 
         if(!isFound(table,id)){
             cout << "Record not found" << endl;
