@@ -8,8 +8,10 @@
 #include "Admin.h"
 using namespace std;
 
+
+
 class Schema{
-public:
+private:
     static sqlite3* open() {
         sqlite3* db ;
         int connection = sqlite3_open("DB.db", &db);
@@ -20,6 +22,14 @@ public:
         return db;
     }
 
+    static void close(sqlite3* db){
+        if (db) {
+            sqlite3_close(db);
+            db = nullptr;
+        }
+    }
+
+public:
     static void insertTo(const string& table,Client& client) {
         string name = client.getName();
         string password = client.getPassword();
@@ -185,9 +195,7 @@ public:
         const string sql = "SELECT * FROM " + table + " WHERE id = " + to_string(id) + ";";
 
         int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
-        bool found = sqlite3_step(stmt) == SQLITE_ROW;
-
-        return found;
+        return sqlite3_step(stmt) == SQLITE_ROW;
     }
 
     static void updateColumn(const string& table ,const string& column , const int& id , const string& value){
@@ -258,14 +266,28 @@ public:
         Schema::close(db);
 
         cout << "Record deleted." << endl;
-   }
-
-    static void close(sqlite3* db){
-        if (db) {
-            sqlite3_close(db);
-            db = nullptr;
-        }
     }
+
+    static void clear(const string& table){
+        sqlite3* db = Schema::open();
+        char* error = nullptr;
+        const string sql = "DELETE FROM "+table;
+
+        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+
+        if (connection == SQLITE_BUSY) {
+            // Handle database locking error
+            cout << "Database is locked. Retrying..." << endl;
+            sqlite3_busy_timeout(db, 5000); // Retry after a delay of 5000ms
+            connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+        }
+
+        Schema::close(db);
+
+        cout << table+" cleared." << endl;
+    }
+
+
 };
 
 #endif //FINAL_PROJECT_SCHEMA_H

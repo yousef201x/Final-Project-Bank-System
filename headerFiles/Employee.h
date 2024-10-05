@@ -5,8 +5,10 @@
 #ifndef FINAL_PROJECT_EMPLOYEE_H
 #define FINAL_PROJECT_EMPLOYEE_H
 
+
 #include "Person.h"
-#include "DataBase.h"
+#pragma once
+
 
 class Employee : public Person{
 protected:
