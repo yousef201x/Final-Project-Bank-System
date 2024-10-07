@@ -1,5 +1,6 @@
 #ifndef FINAL_PROJECT_SCHEMA_H
 #define FINAL_PROJECT_SCHEMA_H
+#pragma once
 
 #include <iostream>
 #include "../sqlite/sqlite3.h"
@@ -8,10 +9,12 @@
 #include "Admin.h"
 using namespace std;
 
+class Client;
+
 
 
 class Schema{
-private:
+protected:
     static sqlite3* open() {
         sqlite3* db ;
         int connection = sqlite3_open("DB.db", &db);
@@ -172,7 +175,7 @@ public:
             return;
         }
 
-        sqlite3_finalize(stmt);  // Finalize the prepared statement
+        sqlite3_finalize(stmt);
         Schema::close(db);
     }
 
@@ -186,7 +189,7 @@ public:
 
         bool found = sqlite3_step(stmt) == SQLITE_ROW;
 
-        Schema::close(db);  // Close database connection after step operation
+        Schema::close(db);
         return found;
     }
 
@@ -219,7 +222,6 @@ public:
             }
         }
 
-        // Ensure you update only the specific record by id
         string sql = "UPDATE " + table + " SET " + column + " = '" + value + "' WHERE id = " + to_string(id) + ";";
 
         int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
@@ -239,7 +241,6 @@ public:
             cout << "Update successful." << endl;
         }
 
-        // Close the database connection to avoid locking issues
         Schema::close(db);
     }
 
@@ -278,7 +279,7 @@ public:
         if (connection == SQLITE_BUSY) {
             // Handle database locking error
             cout << "Database is locked. Retrying..." << endl;
-            sqlite3_busy_timeout(db, 5000); // Retry after a delay of 5000ms
+            sqlite3_busy_timeout(db, 5000);
             connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
         }
 
@@ -286,8 +287,6 @@ public:
 
         cout << table+" cleared." << endl;
     }
-
-
 };
 
 #endif //FINAL_PROJECT_SCHEMA_H

@@ -7,10 +7,11 @@
 
 #include "Employee.h"
 
+
 class Admin : public Employee{
 public:
     Admin(string name, string password, double salary)
-    : Employee(name,password,salary)
+    : Employee(name, password,salary)
     {}
 };
 

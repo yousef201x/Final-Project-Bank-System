@@ -79,7 +79,10 @@ public:
 
     virtual void displayInfo(){
         cout
-        << this->id << endl
-        << this->name << endl;
+                << this->id << endl
+                << this->name << endl;
     }
+
+    virtual pair<int, bool> login( const int& id, const string& password) = 0;
+
 };
