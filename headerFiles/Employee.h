@@ -7,6 +7,7 @@
 
 #pragma once
 #include "Person.h"
+#include "Schema.h"
 
 class Employee : public Person{
 protected:

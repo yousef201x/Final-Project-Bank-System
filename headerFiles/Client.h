@@ -8,6 +8,7 @@
 #include "Person.h"
 #include "Validate.h"
 #include "../sqlite/sqlite3.h"
+#include "Schema.h"
 
 class Client : public Person {
 private:

@@ -6,6 +6,7 @@
 #define FINAL_PROJECT_ADMIN_H
 
 #include "Employee.h"
+#include "Schema.h"
 
 
 class Admin : public Employee{

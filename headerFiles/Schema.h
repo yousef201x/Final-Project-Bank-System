@@ -4,14 +4,12 @@
 
 #include <iostream>
 #include "../sqlite/sqlite3.h"
-#include "Client.h"
-#include "Employee.h"
-#include "Admin.h"
+#include "Validate.h"
 using namespace std;
 
 class Client;
-
-
+class Employee;
+class Admin;
 
 class Schema{
 protected:
@@ -33,10 +31,27 @@ protected:
     }
 
 public:
-    static void insertTo(const string& table,Client& client) {
-        string name = client.getName();
-        string password = client.getPassword();
-        double balance = client.getBalance();
+    template<typename Ty>
+    static void insertTo(const string& table,Ty& user) {
+        string name = user.getName();
+        string password = user.getPassword();
+        double balanceOrSalary = 0 ;
+        string userType ;
+
+        if constexpr (is_same_v<Ty, Client>) {
+            balanceOrSalary = user.getBalance();
+            userType = "Client";
+        } else if constexpr (is_same_v<Ty, Employee>) {
+            balanceOrSalary = user.getSalary();
+            userType = "Employee";
+        } else if constexpr (is_same_v<Ty, Admin>) {
+            balanceOrSalary = user.getSalary();
+            userType = "Admin";
+        }else{
+            cout << "Unknown user type." << endl;
+            return;
+        }
+
 
         if(!Validate::isValidName(name)){
             cout << "Not valid name." << endl;
@@ -47,8 +62,27 @@ public:
             return;
         }
 
-        const string sql = "INSERT INTO "+table+" (name, password, balance) VALUES ('"
-                           + name + "', '" + password + "', " + to_string(balance) + ");";
+        if(is_same_v<Ty, Client>){
+            if(!Validate::isMinBalance(balanceOrSalary)){
+                cout << "Min Balance is 1500.";
+            }
+        }
+        else{
+            if(!Validate::isMinBalance(balanceOrSalary,5000)){
+                cout << "Min salary is 5000.";
+            }
+        }
+
+        string sql;
+
+
+        if constexpr (is_same_v<Ty, Client>) {
+            sql = "INSERT INTO " + table + " (name, password, balance) VALUES ('"
+                               + name + "', '" + password + "', " + to_string(balanceOrSalary) + ");";
+        }else{
+            sql = "INSERT INTO " + table + " (name, password, salary) VALUES ('"
+                               + name + "', '" + password + "', " + to_string(balanceOrSalary) + ");";
+        }
 
         sqlite3* db = Schema::open();
         char* error = nullptr;
@@ -62,79 +96,10 @@ public:
             return;
         }
 
-        cout << "Client created." << endl;
+        cout << userType+" created." << endl;
 
         Schema::close(db);
     }
-
-    static void insertTo(const string& table,Employee& employee) {
-        string name = employee.getName();
-        string password = employee.getPassword();
-        double balance = employee.getSalary();
-
-        if(!Validate::isValidName(name)){
-            cout << "Not valid name." << endl;
-            return;
-        }
-        if(!Validate::isStrInRange(password)){
-            cout << "Not valid password." << endl;
-            return;
-        }
-
-        const string sql = "INSERT INTO "+table+" (name, password, balance) VALUES ('"
-                           + name + "', '" + password + "', " + to_string(balance) + ");";
-
-        sqlite3* db = Schema::open();
-        char* error = nullptr;
-
-        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
-
-        if (connection != SQLITE_OK) {
-            cout << "SQL error: " << error << endl;
-            sqlite3_free(error);
-            cout << "Failed" << endl;
-            return;
-        }
-
-        cout << "Employee created." << endl;
-
-        Schema::close(db);
-    }
-
-    static void insertTo(const string& table,Admin& admin) {
-        string name = admin.getName();
-        string password = admin.getPassword();
-        double balance = admin.getSalary();
-
-        if(!Validate::isValidName(name)){
-            cout << "Not valid name." << endl;
-            return;
-        }
-        if(!Validate::isStrInRange(password)){
-            cout << "Not valid password." << endl;
-            return;
-        }
-
-        const string sql = "INSERT INTO "+table+" (name, password, balance) VALUES ('"
-                           + name + "', '" + password + "', " + to_string(balance) + ");";
-
-        sqlite3* db = Schema::open();
-        char* error = nullptr;
-
-        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
-
-        if (connection != SQLITE_OK) {
-            cout << "SQL error: " << error << endl;
-            sqlite3_free(error);
-            cout << "Failed";
-            return;
-        }
-
-        cout << "Admin created." << endl;
-
-        Schema::close(db);
-    }
-
 
     static void all(const string& table) {
         sqlite3* db = Schema::open();
@@ -179,7 +144,6 @@ public:
         Schema::close(db);
     }
 
-
     static bool isFound(const string& table ,const int& id) {
         sqlite3* db = Schema::open();
         sqlite3_stmt *stmt;
@@ -187,10 +151,8 @@ public:
 
         int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
 
-        bool found = sqlite3_step(stmt) == SQLITE_ROW;
-
         Schema::close(db);
-        return found;
+        return  sqlite3_step(stmt) == SQLITE_ROW;
     }
 
     static bool isFound(sqlite3* db , const string& table ,const int& id){
@@ -202,8 +164,10 @@ public:
     }
 
     static void updateColumn(const string& table ,const string& column , const int& id , const string& value){
+
         sqlite3* db = Schema::open();
         char* error = nullptr;
+
 
         if(!isFound(db,table,id)){
             cout << "Record not found" << endl;
@@ -244,11 +208,44 @@ public:
         Schema::close(db);
     }
 
+    static void updateColumn(const string& table ,const string& column , const int& id , const double & value){
+
+        sqlite3* db = Schema::open();
+        char* error = nullptr;
+
+
+        if(!isFound(db,table,id)){
+            cout << "Record not found" << endl;
+            return;
+        }
+
+        string sql = "UPDATE " + table + " SET " + column + " = '" + to_string(value) + "' WHERE id = " + to_string(id) + ";";
+
+        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+
+        if (connection == SQLITE_BUSY) {
+            // Handle database locking error
+            cout << "Database is locked. Retrying..." << endl;
+            sqlite3_busy_timeout(db, 5000); // Retry after a delay of 5000ms
+            connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+        }
+
+        if (connection != SQLITE_OK) {
+            cout << "SQL error: " << error << endl;
+            sqlite3_free(error);
+            cout << "Failed" << endl;
+        } else {
+            cout << "Update successful." << endl;
+        }
+
+        Schema::close(db);
+    }
+
     static void destroy(const string& table , int id){
         sqlite3* db = Schema::open();
         char* error = nullptr;
 
-        if(!isFound(db,table,id)){
+        if(!isFound(table,id)){
             cout << "Record not found" << endl;
             return;
         }
