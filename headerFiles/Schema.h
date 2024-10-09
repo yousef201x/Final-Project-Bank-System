@@ -13,6 +13,68 @@ class Admin;
 
 class Schema{
 protected:
+    static void createClientsTable() {
+        const string sql = "CREATE TABLE IF NOT EXISTS clients("
+                           "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                           "name TEXT NOT NULL, "
+                           "password TEXT NOT NULL, "
+                           "balance FLOAT(10,3) NOT NULL);";
+        sqlite3* db = Schema::open();
+        char* error = nullptr;
+
+        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+
+        if (connection != SQLITE_OK) {
+            cout << "SQL error: " << error << endl;
+            sqlite3_free(error);
+            cout << "Failed to build table" << endl;
+            return ;
+        }
+
+        Schema::close(db);
+    }
+    static void createEmployeeTable() {
+        const string sql = "CREATE TABLE IF NOT EXISTS employees("
+                           "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                           "name TEXT NOT NULL, "
+                           "password TEXT NOT NULL, "
+                           "salary FLOAT(10,3) NOT NULL);";
+        sqlite3* db = Schema::open();
+        char* error = nullptr;
+
+        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+
+        if (connection != SQLITE_OK) {
+            cout << "SQL error: " << error << endl;
+            sqlite3_free(error);
+            cout << "Failed to build table" << endl;
+            return ;
+        }
+
+        Schema::close(db);
+    }
+    static void createAdminsTable() {
+        const string sql = "CREATE TABLE IF NOT EXISTS admins("
+                           "id INTEGER PRIMARY KEY AUTOINCREMENT, "
+                           "name TEXT NOT NULL, "
+                           "password TEXT NOT NULL, "
+                           "salary FLOAT(10,3) NOT NULL);";
+        sqlite3* db = Schema::open();
+        char* error = nullptr;
+
+        int connection = sqlite3_exec(db, sql.c_str(), nullptr, nullptr, &error);
+
+        if (connection != SQLITE_OK) {
+            cout << "SQL error: " << error << endl;
+            sqlite3_free(error);
+            cout << "Failed to build table" << endl;
+            return;
+        }
+
+        Schema::close(db);
+    }
+
+public:
     static sqlite3* open() {
         sqlite3* db ;
         int connection = sqlite3_open("DB.db", &db);
@@ -30,7 +92,12 @@ protected:
         }
     }
 
-public:
+    static void buildTables() {
+        createClientsTable();
+        createEmployeeTable();
+        createAdminsTable();
+    }
+
     template<typename Ty>
     static void insertTo(const string& table,Ty& user) {
         string name = user.getName();
@@ -65,11 +132,12 @@ public:
         if(is_same_v<Ty, Client>){
             if(!Validate::isMinBalance(balanceOrSalary)){
                 cout << "Min Balance is 1500.";
+                return;
             }
-        }
-        else{
+        }else{
             if(!Validate::isMinBalance(balanceOrSalary,5000)){
                 cout << "Min salary is 5000.";
+                return;
             }
         }
 
@@ -106,7 +174,7 @@ public:
         sqlite3_stmt *stmt;
         const string sql = "SELECT * FROM " + table;
 
-        int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+        int connection = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
 
         if (sqlite3_step(stmt) == SQLITE_ROW) {
             do {

@@ -8,6 +8,7 @@
 #include <string>
 #include "Validate.h"
 #include "exception"
+
 using namespace std;
 class Person
 {
@@ -29,22 +30,12 @@ public:
         }
     };
 
-    Person(string name, string password)
-    {
-        if(Validate::isValidName(name)){
-            this->name = name ;
-        }
-        else{
-            throw invalidNameException();
-        }
+    Person(int id, string name, string password)
+            : id(id), name(name), password(password)
+    {}
 
-        if(Validate::isStrInRange(password, 8, 20)){
-            this->password = password ;
-        }
-        else{
-            throw invalidPasswordException();
-        }
-    }
+    Person(const Person& other)
+            : id(other.getId()), name(other.getName()), password(other.getPassword()) {}
 
     const string &getName() const {
         return name;
@@ -82,7 +73,4 @@ public:
                 << this->id << endl
                 << this->name << endl;
     }
-
-    virtual pair<int, bool> login( const int& id, const string& password) = 0;
-
 };

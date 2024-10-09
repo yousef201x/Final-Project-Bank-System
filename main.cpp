@@ -3,29 +3,34 @@
 #include "headerFiles/Client.h"
 #include "headerFiles/Employee.h"
 #include "headerFiles/Admin.h"
+#include "headerFiles/CLI.h"
+
 using namespace std;
-int main(){
-    Client c("yousef","123456789",1500);
-    Employee e("yousef","123456789",5000);
-    Admin a("yousef","123456789",5000);
 
-    // Insert data
+template <typename Ty>
+char handleUser(Ty* user) {
+    if constexpr (is_same_v<Ty, Client>) {
+        return 'c';
+    } else if constexpr (is_same_v<Ty, Employee>) {
+        return 'e';
+    } else if constexpr (is_same_v<Ty, Admin>) {
+        return 'a';
+    }
+}
 
-    Schema::insertTo<Client>("clients",c);
-    Schema::insertTo<Admin>("admins",a);
-    Schema::insertTo<Employee>("employees",e);
+int main() {
+    char userType{};
+    CLI::welcome();
+    Person* user = CLI::login();
 
-    // Update data
+    if (Client* clientUser = dynamic_cast<Client*>(user)) {
+        userType  = handleUser(clientUser);
+    } else if (Employee* employeeUser = dynamic_cast<Employee*>(user)) {
+        userType  = handleUser(employeeUser);
+    } else if (Admin* adminUser = dynamic_cast<Admin*>(user)) {
+        userType  = handleUser(adminUser);
+    }
 
-    Schema::updateColumn("clients","name",273,"updatename");
-    Schema::updateColumn("clients","balance",273,6000);
-    Schema::updateColumn("admins","name",74,"updatename");
-
-    // Delete record
-
-    Schema::destroy("clients",274);
-
-    // Clear table
-
-    Schema::clear("employees");
+    delete user;
+    return 0;
 }

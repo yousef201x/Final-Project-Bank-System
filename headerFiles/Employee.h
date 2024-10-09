@@ -8,6 +8,7 @@
 #pragma once
 #include "Person.h"
 #include "Schema.h"
+#include "Client.h"
 
 class Employee : public Person{
 protected:
@@ -20,15 +21,9 @@ public:
         }
     };
 
-    Employee(string name, string password, double salary)
-            : Person(name, password)
-    {
-        if(Validate::isMinBalance(salary, 5000)){
-            this->salary = salary ;
-        }else{
-            throw invalidSalaryException();
-        }
-    }
+    Employee(int id,string name, string password, double salary)
+            : Person(id,name, password)
+    {}
 
     const double &getSalary(){
         return salary;
@@ -39,45 +34,66 @@ public:
         cout << this->salary;
     }
 
-    pair<int, bool> login(const int& id, const string& password){
-        sqlite3* db ;
-
-        int connection = sqlite3_open("DB.db", &db);
-
-        if (connection != SQLITE_OK) {
-            cout << "Failed to connect to the database: " << sqlite3_errmsg(db) << endl;
-        }
-
-        sqlite3_stmt* stmt;
-
-        // Prepare the SQL query to select the record where id and password match
-        const string sql = "SELECT id FROM employees WHERE id = ? AND password = ?;";
-
-        // Prepare the statement
-        int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
-
-        // Bind the id and password to the prepared statement
-        sqlite3_bind_int(stmt, 1, id);  // Bind id as integer
-        sqlite3_bind_text(stmt, 2, password.c_str(), -1, SQLITE_STATIC);  // Bind password as text
-
-        // Execute the query and check if a result exists
-        if (sqlite3_step(stmt) == SQLITE_ROW) {
-            // Retrieve the user's ID
-            int foundId = sqlite3_column_int(stmt, 0);
-
-            sqlite3_finalize(stmt);
-            sqlite3_close(db);
-            db = nullptr;
-            return {foundId, true};  // Return the user's ID and userType
-        }
-
-        // Login failed
-        cout << "Login failed. Invalid ID or password." << endl;
-        sqlite3_finalize(stmt);
-        sqlite3_close(db);
-        db = nullptr;
-        return {-1, false};  // Return -1 for id and an empty string for userType indicating failure
+    void addClient(Client& client){
+        Schema::insertTo<Client>("clients",client);
     }
+
+    void searchClient(int id){
+        Schema::findById("clients",id);
+    }
+
+    void listClients(){
+        Schema::all("clients");
+    }
+
+    void editClientName(int id ,string name){
+        Schema::updateColumn("clients","name",id,name);
+    }
+
+    void editClientPassword(int id ,string password){
+        Schema::updateColumn("clients","password",id,password);
+    }
+
+    void editClientBalance(int id ,double balance){
+        Schema::updateColumn("clients","balance",id,balance);
+    }
+
+    static Employee login(int id, const string& password) {
+        sqlite3* db = Schema::open();
+        sqlite3_stmt *stmt;
+
+        // Add single quotes around the password value
+        const string sql = "SELECT * FROM employees WHERE id = " + to_string(id) + " AND password = '" + password + "';";
+
+        int rc = sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+        if (rc != SQLITE_OK) {
+            cout << "Failed to prepare statement: " << sqlite3_errmsg(db) << endl;
+            sqlite3_finalize(stmt);
+            Schema::close(db);
+            return {-1, "", "", -1}; // Return an invalid Client
+        }
+
+        int userId = -1;
+        string username{};
+        string userPassword{};
+        double balance = -1;
+
+        if (sqlite3_step(stmt) == SQLITE_ROW) {
+            // Fetching the columns from the result row
+            userId = sqlite3_column_int(stmt, 0);
+            username = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+            userPassword = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+            balance = sqlite3_column_double(stmt, 3);
+
+        } else {
+            cout << "\nInvalid credentials or no matching record!" << endl;
+        }
+
+        sqlite3_finalize(stmt);
+        Schema::close(db);
+        return {userId, username, userPassword, balance};
+    }
+
 
 };
 
