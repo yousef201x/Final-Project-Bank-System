@@ -14,28 +14,34 @@ public:
     : Employee(id,name, password,salary)
     {}
 
-    void addEmployee(Employee& employee){
-        Schema::insertTo<Employee>("employees",employee);
+    pair<bool,const char*> addEmployee(Employee& employee){
+        auto stmt = Schema::insertTo<Employee>("employees",employee);
+        return {stmt.first,stmt.second};
     }
 
-    void searchEmployee(int id){
-        Schema::findById("employees",id);
+    pair<bool,const char*> searchEmployee(int id){
+        auto stmt = Schema::findById("employees",id);
+        return {stmt.first,stmt.second};
     }
 
-    void listEmployees(){
-        Schema::all("employees");
+    pair<bool,const char*> listEmployees(){
+        auto stmt = Schema::all("employees");
+        return {stmt.first,stmt.second};
     }
 
-    void editEmployeeName(int id ,string name){
-        Schema::updateColumn("employees","name",id,name);
+    pair<bool,const char*> editEmployeeName(int id ,string name){
+        auto stmt = Schema::updateColumn("employees","name",id,name);
+        return {stmt.first,stmt.second};
     }
 
-    void editEmployeePassword(int id ,string password){
-        Schema::updateColumn("employees","password",id,password);
+    pair<bool,const char*> editEmployeePassword(int id ,string password){
+        auto stmt = Schema::updateColumn("employees","password",id,password);
+        return {stmt.first,stmt.second};
     }
 
-    void editEmployeeSalary(int id ,double salary){
-        Schema::updateColumn("employees","salary",id,salary);
+    pair<bool,const char*> editEmployeeSalary(int id ,double salary){
+        auto stmt = Schema::updateColumn("employees","salary",id,salary);
+        return {stmt.first,stmt.second};
     }
 
     static Admin login(int id, const string& password) {
@@ -73,7 +79,6 @@ public:
         Schema::close(db);
         return {userId, username, userPassword, balance};
     }
-
 
 };
 

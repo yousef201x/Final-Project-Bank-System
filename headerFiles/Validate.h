@@ -35,6 +35,10 @@ public:
         return true;
     }
 
+    static bool isAmountPositive(double& amount){
+        return amount >= 0;
+    }
+
 
     static bool isStrInRange(const string& value, int min = 5, int max = 20)
     {
@@ -43,6 +47,10 @@ public:
 
 
     static bool isMinBalance(double& value , double min = 1500){
+        return (value >= min);
+    }
+
+    static bool isMinSalary(double& value , double min = 5000){
         return (value >= min);
     }
 

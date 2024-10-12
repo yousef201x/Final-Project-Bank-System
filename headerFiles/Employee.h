@@ -22,7 +22,7 @@ public:
     };
 
     Employee(int id,string name, string password, double salary)
-            : Person(id,name, password)
+            : Person(id,name, password) , salary(salary)
     {}
 
     const double &getSalary(){
@@ -93,7 +93,6 @@ public:
         Schema::close(db);
         return {userId, username, userPassword, balance};
     }
-
 
 };
 
